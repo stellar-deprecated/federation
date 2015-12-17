@@ -2,6 +2,17 @@
 
 Go implementation of [Federation](https://www.stellar.org/developers/learn/concepts/federation.html) protocol server.
 
+## Downloading the tool
+[Prebuilt binaries](https://github.com/stellar/federation/releases) of the federation server are available are on the [releases page](https://github.com/stellar/federation/releases).
+
+| Platform       | Binary file name                                                                         |
+|----------------|------------------------------------------------------------------------------------------|
+| Mac OSX 64 bit | [federation-darwin-amd64](https://github.com/stellar/federation/releases)      |
+| Linux 64 bit   | [federation-linux-amd64](https://github.com/stellar/federation/releases)       |
+| Windows 64 bit | [federation-windows-amd64.exe](https://github.com/stellar/federation/releases) |
+
+Alternatively, you can [build](#building) the binary yourself.
+
 ## Config
 
 The `config.toml` file must be present in a working directory. Config file should contain following values:
