@@ -3,7 +3,7 @@
 Go implementation of [Federation](https://www.stellar.org/developers/learn/concepts/federation.html) protocol server.
 
 ## Downloading the tool
-[Prebuilt binaries](https://github.com/stellar/federation/releases) of the federation server are available are on the [releases page](https://github.com/stellar/federation/releases).
+[Prebuilt binaries](https://github.com/stellar/federation/releases) of the federation server are available on the [releases page](https://github.com/stellar/federation/releases).
 
 | Platform       | Binary file name                                                                         |
 |----------------|------------------------------------------------------------------------------------------|
