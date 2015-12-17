@@ -1,0 +1,21 @@
+language: go
+go:
+- '1.5'
+- tip
+install:
+- go get github.com/constabulary/gb/...
+script:
+- bash scripts/run_tests.bash
+before_deploy:
+- bash scripts/build_artifacts.bash
+deploy:
+  provider: releases
+  api_key:
+    secure: UNiZDRx2TUn8FnYg3lDw0FcVEWr5Kxo8H7L1lUUsd1Fi0TIDnHMqaD4KqokXrnnPrPXuQO8qZEwKZ410ILaV552gPkwX5gTgmAjfgIwmg+PtVJ2jmDtp+l4TwVcvSDDfeLBYxx4bWJABn4SS0bL0u08AmaBfrDY8cXeWWGqgDQ00xDb3yWlaJHGo5K1pdql823SWsTLTMwBmOCX5PLbkaCLXHSim+x+H8pVq3kM6MquQIx7cY439+I0/L70LAZbD1WayVih16c/+ThRxBLp0EQPMoMXqubu3QC81WOOrJkN0xPQb5sMHTBMz9jqiScekz0DfHPTr3ksmN6K8WB23ReUqbtan2iwRWkz4lNjnq1Wf4Uud8OWcYdtkqGozuFkAh5sIaAU/NTjQeO473wSSAo/gGrKYbCvuDZPOMG7vl5DdQRo5qRbXZ/06mBCC52afmlVKKI4AH6+zlv+d+oRcaWwUvzg9/2NKQ16H/hLZFvKLlhcUifxun8gF4EoUBeQa7P5LOO2tfMd7e2NHTAsCzG6w4V6JrwvBj3SvInA9SP7xnHjp9Jw4OKASkhId1QxOqWTwdHKh57iunNgVRUVhA3I9Q6a920Uh/eJYW9gjPYNt5WsoPJR/jhhTfg19tv8egHJLWs2m6M3ClPA8Ed6NXdqW92SwQ7gNFK+0WaFH+VQ=
+  file_glob: true
+  file: "dist/*"
+  skip_cleanup: true
+  on:
+    repo: stellar/federation
+    tags: true
+    go: '1.5'

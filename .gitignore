@@ -3,4 +3,5 @@
 /vendor/bin
 /pkg
 /bin
+/dist
 /config.toml
