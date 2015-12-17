@@ -1,19 +1,24 @@
 package federation
 
 import (
+  "flag"
   "fmt"
-  "net/http"
   "log"
 
   _ "github.com/go-sql-driver/mysql"
   "github.com/jmoiron/sqlx"
   _ "github.com/lib/pq"
   _ "github.com/mattn/go-sqlite3"
+  "github.com/zenazn/goji"
 )
+
+type Database interface {
+  Get(dest interface{}, query string, args ...interface {}) error
+}
 
 type App struct {
   config   Config
-  database *sqlx.DB
+  database Database
 }
 
 // NewApp constructs an new App instance from the provided config.
@@ -34,12 +39,10 @@ func NewApp(config Config) (*App, error) {
 func (a *App) Serve() {
   requestHandler := &RequestHandler{app: a}
 
-  http.HandleFunc("/federation", requestHandler.Main)
-  http.HandleFunc("/federation/", requestHandler.Main)
   portString := fmt.Sprintf(":%d", a.config.Port)
-  http.ListenAndServe(portString, nil)
-}
+  flag.Set("bind", portString)
 
-func (a *App) Close() {
-  a.database.Close();
+  goji.Use(stripTrailingSlashMiddleware())
+  goji.Get("/federation", requestHandler.Main)
+  goji.Serve()
 }

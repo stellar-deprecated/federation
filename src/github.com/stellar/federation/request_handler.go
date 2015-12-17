@@ -3,7 +3,7 @@ package federation
 import(
   "bytes"
   "encoding/json"
-  "fmt"
+  "log"
   "net/http"
 )
 
@@ -15,13 +15,14 @@ func (rh *RequestHandler) Main(w http.ResponseWriter, r *http.Request) {
   w.Header().Set("Content-Type", "application/json")
 
   requestType := r.URL.Query().Get("type")
-  switch requestType {
-    case "name":
+  q := r.URL.Query().Get("q")
+  switch  {
+    case requestType == "name" && q != "":
       rh.MakeDatabaseRequest(rh.app.config.FederationQuery, w, r);
-    case "id":
+    case requestType == "id" && q != "":
       rh.MakeDatabaseRequest(rh.app.config.ReverseFederationQuery, w, r);
     default:
-      fmt.Fprint(w, "invalid request")
+      http.Error(w, ErrorResponseString("invalid_request", "Invalid request"), http.StatusBadRequest)
   }
 }
 
@@ -31,12 +32,16 @@ func (rh *RequestHandler) MakeDatabaseRequest(query string, w http.ResponseWrite
 
   if err != nil {
     if err.Error() == "sql: no rows in result set" {
+      log.Print("Federation record NOT found")
       http.Error(w, ErrorResponseString("not_found", "Account not found"), http.StatusNotFound)
     } else {
+      log.Print("Server error: ", err)
       http.Error(w, ErrorResponseString("server_error", "Server error"), http.StatusInternalServerError)
     }
     return
   }
+
+  log.Print("Federation record found")
 
   var usernameBuffer bytes.Buffer
   usernameBuffer.WriteString(record.Username)

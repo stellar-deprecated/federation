@@ -108,11 +108,11 @@ func (fnfe ConfigFileNotFoundError) Error() string {
 //  Defaults : {
 //  	"secret": "",
 //  	"user": "default",
-// 	    "endpoint": "https://localhost"
+// 	"endpoint": "https://localhost"
 //  }
 //  Config : {
 //  	"user": "root"
-//	    "secret": "defaultsecret"
+//	"secret": "defaultsecret"
 //  }
 //  Env : {
 //  	"secret": "somesecretkey"
@@ -179,7 +179,7 @@ func New() *Viper {
 // can use it in their testing as well.
 func Reset() {
 	v = New()
-	SupportedExts = []string{"json", "toml", "yaml", "yml"}
+	SupportedExts = []string{"json", "toml", "yaml", "yml", "hcl"}
 	SupportedRemoteProviders = []string{"etcd", "consul"}
 }
 
@@ -218,7 +218,7 @@ type RemoteProvider interface {
 }
 
 // Universally supported extensions.
-var SupportedExts []string = []string{"json", "toml", "yaml", "yml", "properties", "props", "prop"}
+var SupportedExts []string = []string{"json", "toml", "yaml", "yml", "properties", "props", "prop", "hcl"}
 
 // Universally supported remote providers.
 var SupportedRemoteProviders []string = []string{"etcd", "consul"}

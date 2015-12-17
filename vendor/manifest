@@ -8,12 +8,6 @@
 			"branch": "master"
 		},
 		{
-			"importpath": "github.com/Sirupsen/logrus",
-			"repository": "https://github.com/Sirupsen/logrus",
-			"revision": "446d1c146faa8ed3f4218f056fcd165f6bcfda81",
-			"branch": "master"
-		},
-		{
 			"importpath": "github.com/cpuguy83/go-md2man/md2man",
 			"repository": "https://github.com/cpuguy83/go-md2man",
 			"revision": "71acacd42f85e5e82f70a55327789582a5200a90",
@@ -21,9 +15,28 @@
 			"path": "/md2man"
 		},
 		{
+			"importpath": "github.com/davecgh/go-spew/spew",
+			"repository": "https://github.com/davecgh/go-spew",
+			"revision": "5215b55f46b2b919f50a1df0eaa5886afe4e3b3d",
+			"branch": "master",
+			"path": "/spew"
+		},
+		{
 			"importpath": "github.com/go-sql-driver/mysql",
 			"repository": "https://github.com/go-sql-driver/mysql",
 			"revision": "d512f204a577a4ab037a1816604c48c9c13210be",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/goji/param",
+			"repository": "https://github.com/goji/param",
+			"revision": "da86c81e3e3c23b1948bc7a003d381250a032aa7",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/hashicorp/hcl",
+			"repository": "https://github.com/hashicorp/hcl",
+			"revision": "17c5c97b5a51e82c238678127e413b7635c6d5f6",
 			"branch": "master"
 		},
 		{
@@ -36,6 +49,12 @@
 			"importpath": "github.com/jmoiron/sqlx",
 			"repository": "https://github.com/jmoiron/sqlx",
 			"revision": "54aec3fd91a2b2129ffaca0d652b8a9223ee2d9e",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/jtolds/gls",
+			"repository": "https://github.com/jtolds/gls",
+			"revision": "9a4a02dbe491bef4bab3c24fd9f3087d6c4c6690",
 			"branch": "master"
 		},
 		{
@@ -75,6 +94,13 @@
 			"branch": "master"
 		},
 		{
+			"importpath": "github.com/pmezard/go-difflib/difflib",
+			"repository": "https://github.com/pmezard/go-difflib",
+			"revision": "e8554b8641db39598be7f6342874b958f12ae1d4",
+			"branch": "master",
+			"path": "/difflib"
+		},
+		{
 			"importpath": "github.com/russross/blackfriday",
 			"repository": "https://github.com/russross/blackfriday",
 			"revision": "d18b67ae0afd61dae240896eae1785f00709aa31",
@@ -87,6 +113,18 @@
 			"branch": "master"
 		},
 		{
+			"importpath": "github.com/smartystreets/assertions",
+			"repository": "https://github.com/smartystreets/assertions",
+			"revision": "edb6e295a22c57a2aa353b2f0729b6eff9f9f4b7",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/smartystreets/goconvey",
+			"repository": "https://github.com/smartystreets/goconvey",
+			"revision": "899ed5a77548ac0bc086467509ff3dc49c63a814",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/spf13/cast",
 			"repository": "https://github.com/spf13/cast",
 			"revision": "ee815aaf958c707ad07547cd62150d973710f747",
@@ -95,7 +133,7 @@
 		{
 			"importpath": "github.com/spf13/cobra",
 			"repository": "https://github.com/spf13/cobra",
-			"revision": "ee6224d01f6a83f543ae90f881b703cf195782ba",
+			"revision": "ea3bf167cfabfe0332d9f7840983448555c6baee",
 			"branch": "master"
 		},
 		{
@@ -113,25 +151,39 @@
 		{
 			"importpath": "github.com/spf13/viper",
 			"repository": "https://github.com/spf13/viper",
-			"revision": "90b31f671fffe7d5076beaa832a778ea9ba007f3",
+			"revision": "79971f1ae71e74d2e814b9b4bb91fb59b0263654",
 			"branch": "master"
 		},
 		{
-			"importpath": "gopkg.in/airbrake/gobrake.v2",
-			"repository": "https://gopkg.in/airbrake/gobrake.v2",
-			"revision": "e5efbe565a5a63d8aafee7efa2f4fdd7f42b7bd3",
+			"importpath": "github.com/stretchr/objx",
+			"repository": "https://github.com/stretchr/objx",
+			"revision": "1a9d0bb9f541897e62256577b352fdbc1fb4fd94",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/stretchr/testify/assert",
+			"repository": "https://github.com/stretchr/testify",
+			"revision": "e3a8ff8ce36581f87a15341206f205b1da467059",
+			"branch": "master",
+			"path": "/assert"
+		},
+		{
+			"importpath": "github.com/stretchr/testify/mock",
+			"repository": "https://github.com/stretchr/testify",
+			"revision": "e3a8ff8ce36581f87a15341206f205b1da467059",
+			"branch": "master",
+			"path": "/mock"
+		},
+		{
+			"importpath": "github.com/zenazn/goji",
+			"repository": "https://github.com/zenazn/goji",
+			"revision": "bf843a174a08e846246b8945f8a9a853d84a256a",
 			"branch": "master"
 		},
 		{
 			"importpath": "gopkg.in/fsnotify.v1",
 			"repository": "https://gopkg.in/fsnotify.v1",
 			"revision": "2cdd39bd6129c6a49c74fb07fb9d77ba1271c572",
-			"branch": "master"
-		},
-		{
-			"importpath": "gopkg.in/gemnasium/logrus-airbrake-hook.v2",
-			"repository": "https://gopkg.in/gemnasium/logrus-airbrake-hook.v2",
-			"revision": "31e6fd4bd5a98d8ee7673d24bc54ec73c31810dd",
 			"branch": "master"
 		},
 		{

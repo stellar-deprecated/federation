@@ -1,6 +1,0 @@
-port: 8000
-database-type: mysql
-database-url: "root:@/dbname"
-domain: acme.com
-federation-query: "SELECT username, account_id FROM Users WHERE username = ?"
-reverse-federation-query: "SELECT username, account_id FROM Users WHERE account_id = ?"

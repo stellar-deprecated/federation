@@ -21,7 +21,7 @@ func main() {
 
 func init() {
   viper.SetConfigName("config")
-  viper.SetConfigType("yaml")
+  viper.SetConfigType("toml")
   viper.AddConfigPath(".")
 
   rootCmd = &cobra.Command{
@@ -31,28 +31,29 @@ func init() {
 `stellar federation server
 =========================
 
-Make sure config.yaml file is in the current folder.
+Make sure config.toml file is in the working folder.
 Required config values:
-  - database-type
-  - database-url
   - domain
-  - federation-query
-  - reverse-federation-query`,
+  - database.type
+  - database.url
+  - queries.federation
+  - queries.reverse-federation`,
     Run:   run,
   }
 }
 
 func run(cmd *cobra.Command, args []string) {
+  log.Print("Reading config.toml file")
   err := viper.ReadInConfig()
   if err != nil {
     panic(fmt.Errorf("Fatal error config file: %s \n", err))
   }
 
-  if viper.GetString("database-type") == "" ||
-     viper.GetString("database-url") == "" ||
+  if viper.GetString("database.type") == "" ||
+     viper.GetString("database.url") == "" ||
      viper.GetString("domain") == "" ||
-     viper.GetString("federation-query") == "" ||
-     viper.GetString("reverse-federation-query") == "" {
+     viper.GetString("queries.federation") == "" ||
+     viper.GetString("queries.reverse-federation") == "" {
     rootCmd.Help()
     os.Exit(1)
   }
@@ -60,10 +61,10 @@ func run(cmd *cobra.Command, args []string) {
   config := federation.Config{
     Port:                   viper.GetInt("port"),
     Domain:                 viper.GetString("domain"),
-    DatabaseType:           viper.GetString("database-type"),
-    DatabaseUrl:            viper.GetString("database-url"),
-    FederationQuery:        viper.GetString("federation-query"),
-    ReverseFederationQuery: viper.GetString("reverse-federation-query"),
+    DatabaseType:           viper.GetString("database.type"),
+    DatabaseUrl:            viper.GetString("database.url"),
+    FederationQuery:        viper.GetString("queries.federation"),
+    ReverseFederationQuery: viper.GetString("queries.reverse-federation"),
   }
 
   app, err = federation.NewApp(config)
