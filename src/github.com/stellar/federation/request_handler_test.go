@@ -50,7 +50,7 @@ func TestRequestHandler(t *testing.T) {
       })
 
       Convey("it should return correct values", func() {
-        response := GetResponse(testServer, "?type=name&q="+username+"2*"+app.config.Domain);
+        response := GetResponse(testServer, "?type=name&q="+username+"*"+app.config.Domain);
         json.Unmarshal(response, &responseRecord)
 
         So(responseRecord.Username,  ShouldEqual, username+"*"+app.config.Domain)
