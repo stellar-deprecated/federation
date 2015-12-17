@@ -50,7 +50,7 @@ func TestRequestHandler(t *testing.T) {
       })
 
       Convey("it should return correct values", func() {
-        response := GetResponse(testServer, "?type=name&q="+username);
+        response := GetResponse(testServer, "?type=name&q="+username+"*"+app.config.Domain);
         json.Unmarshal(response, &responseRecord)
 
         So(responseRecord.Username,  ShouldEqual, username+"*"+app.config.Domain)
@@ -67,9 +67,25 @@ func TestRequestHandler(t *testing.T) {
       mockDatabase.On("Get", &responseRecord, app.config.FederationQuery, username).Return(errors.New("sql: no rows in result set"))
 
       Convey("it should return error response", func() {
-        response := GetResponse(testServer, "?type=name&q="+username);
+        response := GetResponse(testServer, "?type=name&q="+username+"*"+app.config.Domain);
         CheckErrorResponse(response, "not_found", "Account not found")
         mockDatabase.AssertExpectations(t)
+      })
+    })
+
+    Convey("When domain is invalid", func() {
+      Convey("it should return error response", func() {
+        response := GetResponse(testServer, "?type=name&q=test*other.com");
+        CheckErrorResponse(response, "not_found", "Account not found")
+        mockDatabase.AssertNotCalled(t, "Get")
+      })
+    })
+
+    Convey("When domain is empty", func() {
+      Convey("it should return error response", func() {
+        response := GetResponse(testServer, "?type=name&q=test");
+        CheckErrorResponse(response, "not_found", "Account not found")
+        mockDatabase.AssertNotCalled(t, "Get")
       })
     })
 
