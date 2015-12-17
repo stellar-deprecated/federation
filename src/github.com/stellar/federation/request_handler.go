@@ -21,7 +21,7 @@ func (rh *RequestHandler) Main(w http.ResponseWriter, r *http.Request) {
     case requestType == "name" && q != "":
       rh.MakeDatabaseRequest(rh.app.config.FederationQuery, w, r);
     case requestType == "id" && q != "":
-      rh.MakeDatabaseRequest( rh.app.config.ReverseFederationQuery, w, r);
+      rh.MakeDatabaseRequest(rh.app.config.ReverseFederationQuery, w, r);
     default:
       http.Error(w, ErrorResponseString("invalid_request", "Invalid request"), http.StatusBadRequest)
   }
