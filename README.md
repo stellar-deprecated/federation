@@ -1,5 +1,7 @@
 # federation server
 
+Go implementation of [Federation](https://www.stellar.org/developers/learn/concepts/federation.html) protocol server.
+
 ## Config
 
 The `config.toml` file must be present in a working directory. Config file should contain following values:
