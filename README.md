@@ -1,5 +1,7 @@
 # federation server
 
+**Alpha version. Do not use in production yet.**
+
 Go implementation of [Federation](https://www.stellar.org/developers/learn/concepts/federation.html) protocol server.
 
 ## Downloading the tool
