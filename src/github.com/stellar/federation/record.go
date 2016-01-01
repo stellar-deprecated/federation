@@ -1,6 +1,8 @@
 package federation
 
-type Record struct {
-  Username  string `db:"username" json:"stellar_address"`
-  AccountId string `db:"account_id" json:"account_id"`
+type FedRecord struct {
+	StellarAddress string `json:"stellar_address"`
+	AccountId      string `db:"id" json:"account_id"`
+	MemoType       string `db:"type" json:"memo_type"`
+	Memo           string `db:"memo" json:"memo"`
 }
