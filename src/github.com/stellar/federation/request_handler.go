@@ -9,7 +9,8 @@ import(
 )
 
 type RequestHandler struct {
-  app *App
+  config   *Config
+  database Database
 }
 
 func (rh *RequestHandler) Main(w http.ResponseWriter, r *http.Request) {
@@ -19,9 +20,9 @@ func (rh *RequestHandler) Main(w http.ResponseWriter, r *http.Request) {
   q := r.URL.Query().Get("q")
   switch  {
     case requestType == "name" && q != "":
-      rh.MakeDatabaseRequest(rh.app.config.FederationQuery, w, r);
+      rh.MakeDatabaseRequest(rh.config.FederationQuery, w, r);
     case requestType == "id" && q != "":
-      rh.MakeDatabaseRequest(rh.app.config.ReverseFederationQuery, w, r);
+      rh.MakeDatabaseRequest(rh.config.ReverseFederationQuery, w, r);
     default:
       http.Error(w, ErrorResponseString("invalid_request", "Invalid request"), http.StatusBadRequest)
   }
@@ -41,15 +42,15 @@ func (rh *RequestHandler) MakeDatabaseRequest(query string, w http.ResponseWrite
       domain = q[i+1:]
     }
 
-    if name == "" || domain != rh.app.config.Domain {
-      http.Error(w, ErrorResponseString("not_found", "Account not found"), http.StatusNotFound)
+    if name == "" || domain != rh.config.Domain {
+      http.Error(w, ErrorResponseString("not_found", "Incorrect domain"), http.StatusNotFound)
       return
     }
 
     q = name
   }
 
-  err := rh.app.database.Get(&record, query, q)
+  err := rh.database.Get(&record, query, q)
 
   if err != nil {
     if err.Error() == "sql: no rows in result set" {
@@ -67,9 +68,20 @@ func (rh *RequestHandler) MakeDatabaseRequest(query string, w http.ResponseWrite
   var usernameBuffer bytes.Buffer
   usernameBuffer.WriteString(record.Username)
   usernameBuffer.WriteString("*")
-  usernameBuffer.WriteString(rh.app.config.Domain)
+  usernameBuffer.WriteString(rh.config.Domain)
 
   record.Username = usernameBuffer.String()
+
+  if record.MemoType == "id" {
+    // TODO convert record.Memo to integer
+    // memoId, err := strconv.Atoi(record.Memo)
+    // if err != nil {
+    //   log.Print("Cannot convert Memo=", record.Memo, " to integer")
+    //   http.Error(w, ErrorResponseString("server_error", "Server error"), http.StatusInternalServerError)
+    //   return
+    // }
+  }
+
   json, err := json.Marshal(record)
 
   if err != nil {

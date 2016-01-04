@@ -37,7 +37,7 @@ func NewApp(config Config) (*App, error) {
 }
 
 func (a *App) Serve() {
-  requestHandler := &RequestHandler{app: a}
+  requestHandler := &RequestHandler{config: &a.config, database: a.database}
 
   portString := fmt.Sprintf(":%d", a.config.Port)
   flag.Set("bind", portString)

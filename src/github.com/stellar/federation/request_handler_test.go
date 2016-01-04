@@ -32,7 +32,7 @@ func TestRequestHandler(t *testing.T) {
     database: mockDatabase,
   }
 
-  requestHandler := RequestHandler{app: &app}
+  requestHandler := RequestHandler{config: &app.config, database: app.database}
   testServer := httptest.NewServer(http.HandlerFunc(requestHandler.Main))
   defer testServer.Close()
 
