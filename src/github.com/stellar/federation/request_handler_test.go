@@ -76,7 +76,7 @@ func TestRequestHandler(t *testing.T) {
     Convey("When domain is invalid", func() {
       Convey("it should return error response", func() {
         response := GetResponse(testServer, "?type=name&q=test*other.com");
-        CheckErrorResponse(response, "not_found", "Account not found")
+        CheckErrorResponse(response, "not_found", "Incorrect domain")
         mockDatabase.AssertNotCalled(t, "Get")
       })
     })
@@ -84,7 +84,7 @@ func TestRequestHandler(t *testing.T) {
     Convey("When domain is empty", func() {
       Convey("it should return error response", func() {
         response := GetResponse(testServer, "?type=name&q=test");
-        CheckErrorResponse(response, "not_found", "Account not found")
+        CheckErrorResponse(response, "not_found", "Incorrect domain")
         mockDatabase.AssertNotCalled(t, "Get")
       })
     })
