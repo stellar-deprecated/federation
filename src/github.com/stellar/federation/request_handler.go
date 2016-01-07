@@ -36,33 +36,10 @@ func (rh *RequestHandler) RevFedDBRequest(accountID string, w http.ResponseWrite
 
 	err := rh.database.Get(&revResult, rh.config.ReverseFederationQuery, accountID)
 
-	if err != nil {
-		if err.Error() == "sql: no rows in result set" {
-
-			log.Print("Federation record NOT found")
-			http.Error(w, ErrorResponseString("not_found", "Account not found"), http.StatusNotFound)
-		} else {
-			log.Print("Server error: ", err)
-			http.Error(w, ErrorResponseString("server_error", "Server error"), http.StatusInternalServerError)
-		}
-		return
+	if checkDBErr(err, w) {
+		record.StellarAddress = revResult.Name + "*" + rh.config.Domain
+		rh.WriteResponse(record, w)
 	}
-
-	log.Print("Rev Federation record found")
-
-	record.StellarAddress = revResult.Name + "*" + rh.config.Domain
-	rh.WriteResponse(record, w)
-}
-
-func (rh *RequestHandler) WriteResponse(record FedRecord, w http.ResponseWriter) {
-	json, err := json.Marshal(record)
-
-	if err != nil {
-		http.Error(w, ErrorResponseString("server_error", "Server error"), http.StatusInternalServerError)
-		return
-	}
-
-	w.Write(json)
 }
 
 func (rh *RequestHandler) FedDBRequest(stellarAddress string, w http.ResponseWriter) {
@@ -83,6 +60,13 @@ func (rh *RequestHandler) FedDBRequest(stellarAddress string, w http.ResponseWri
 	err := rh.database.Get(&record, rh.config.FederationQuery, name)
 	record.StellarAddress = stellarAddress
 
+	if checkDBErr(err, w) {
+		rh.WriteResponse(record, w)
+	}
+}
+
+// returns false if there was an error
+func checkDBErr(err error, w http.ResponseWriter) bool {
 	if err != nil {
 		if err.Error() == "sql: no rows in result set" {
 
@@ -92,12 +76,22 @@ func (rh *RequestHandler) FedDBRequest(stellarAddress string, w http.ResponseWri
 			log.Print("Server error: ", err)
 			http.Error(w, ErrorResponseString("server_error", "Server error"), http.StatusInternalServerError)
 		}
+		return false
+	}
+	return true
+}
+
+func (rh *RequestHandler) WriteResponse(record FedRecord, w http.ResponseWriter) {
+	log.Print("Federation record found")
+
+	json, err := json.Marshal(record)
+
+	if err != nil {
+		http.Error(w, ErrorResponseString("server_error", "Server error"), http.StatusInternalServerError)
 		return
 	}
 
-	log.Print("Federation record found")
-
-	rh.WriteResponse(record, w)
+	w.Write(json)
 }
 
 func ErrorResponseString(code string, message string) string {

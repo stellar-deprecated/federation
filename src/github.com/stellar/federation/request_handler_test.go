@@ -3,7 +3,6 @@ package federation
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -52,8 +51,6 @@ func TestRequestHandler(t *testing.T) {
 			})
 
 			Convey("it should return correct values", func() {
-				fmt.Println("before")
-
 				response := GetResponse(testServer, "?type=name&q="+username+"*"+app.config.Domain)
 
 				json.Unmarshal(response, &responseRecord)
@@ -74,8 +71,6 @@ func TestRequestHandler(t *testing.T) {
 
 			Convey("it should return error response", func() {
 				response := GetResponse(testServer, "?type=name&q="+username+"*"+app.config.Domain)
-
-				fmt.Println("RESPONSE: " + string(response))
 
 				CheckErrorResponse(response, "not_found", "Account not found")
 				//mockDatabase.AssertExpectations(t)
