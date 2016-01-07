@@ -19,35 +19,69 @@ func (rh *RequestHandler) Main(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query().Get("q")
 	switch {
 	case requestType == "name" && q != "":
-		rh.MakeDatabaseRequest(rh.config.FederationQuery, w, r)
+		rh.FedDBRequest(q, w)
 	case requestType == "id" && q != "":
-		rh.MakeDatabaseRequest(rh.config.ReverseFederationQuery, w, r)
+		rh.RevFedDBRequest(q, w)
 	default:
 		http.Error(w, ErrorResponseString("invalid_request", "Invalid request"), http.StatusBadRequest)
 	}
 }
 
-func (rh *RequestHandler) MakeDatabaseRequest(query string, w http.ResponseWriter, r *http.Request) {
+func (rh *RequestHandler) RevFedDBRequest(accountID string, w http.ResponseWriter) {
 	record := FedRecord{}
 
-	stellarAddress := r.URL.Query().Get("q")
-	var name string
+	record.AccountId = accountID
 
-	if r.URL.Query().Get("type") == "name" {
-		domain := ""
+	revResult := RevFedRecord{}
 
-		if i := strings.Index(stellarAddress, "*"); i >= 0 {
-			name = stellarAddress[:i]
-			domain = stellarAddress[i+1:]
+	err := rh.database.Get(&revResult, rh.config.ReverseFederationQuery, accountID)
+
+	if err != nil {
+		if err.Error() == "sql: no rows in result set" {
+
+			log.Print("Federation record NOT found")
+			http.Error(w, ErrorResponseString("not_found", "Account not found"), http.StatusNotFound)
+		} else {
+			log.Print("Server error: ", err)
+			http.Error(w, ErrorResponseString("server_error", "Server error"), http.StatusInternalServerError)
 		}
-
-		if name == "" || domain != rh.config.Domain {
-			http.Error(w, ErrorResponseString("not_found", "Incorrect Domain"), http.StatusNotFound)
-			return
-		}
+		return
 	}
 
-	err := rh.database.Get(&record, query, name)
+	log.Print("Rev Federation record found")
+
+	record.StellarAddress = revResult.Name + "*" + rh.config.Domain
+	rh.WriteResponse(record, w)
+}
+
+func (rh *RequestHandler) WriteResponse(record FedRecord, w http.ResponseWriter) {
+	json, err := json.Marshal(record)
+
+	if err != nil {
+		http.Error(w, ErrorResponseString("server_error", "Server error"), http.StatusInternalServerError)
+		return
+	}
+
+	w.Write(json)
+}
+
+func (rh *RequestHandler) FedDBRequest(stellarAddress string, w http.ResponseWriter) {
+	record := FedRecord{}
+	var name string
+	domain := ""
+
+	if i := strings.Index(stellarAddress, "*"); i >= 0 {
+		name = stellarAddress[:i]
+		domain = stellarAddress[i+1:]
+	}
+
+	if name == "" || domain != rh.config.Domain {
+		http.Error(w, ErrorResponseString("not_found", "Incorrect Domain"), http.StatusNotFound)
+		return
+	}
+
+	err := rh.database.Get(&record, rh.config.FederationQuery, name)
+	record.StellarAddress = stellarAddress
 
 	if err != nil {
 		if err.Error() == "sql: no rows in result set" {
@@ -63,15 +97,7 @@ func (rh *RequestHandler) MakeDatabaseRequest(query string, w http.ResponseWrite
 
 	log.Print("Federation record found")
 
-	record.StellarAddress = stellarAddress
-	json, err := json.Marshal(record)
-
-	if err != nil {
-		http.Error(w, ErrorResponseString("server_error", "Server error"), http.StatusInternalServerError)
-		return
-	}
-
-	w.Write(json)
+	rh.WriteResponse(record, w)
 }
 
 func ErrorResponseString(code string, message string) string {

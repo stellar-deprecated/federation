@@ -6,3 +6,7 @@ type FedRecord struct {
 	MemoType       string `db:"memo_type" json:"memo_type"`
 	Memo           string `db:"memo" json:"memo"`
 }
+
+type RevFedRecord struct {
+	Name string `db:"name"`
+}
