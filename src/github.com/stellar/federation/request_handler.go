@@ -1,7 +1,6 @@
 package federation
 
 import (
-	"bytes"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -20,67 +19,70 @@ func (rh *RequestHandler) Main(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query().Get("q")
 	switch {
 	case requestType == "name" && q != "":
-		rh.MakeDatabaseRequest(rh.config.FederationQuery, w, r)
+		rh.FedDBRequest(q, w)
 	case requestType == "id" && q != "":
-		rh.MakeDatabaseRequest(rh.config.ReverseFederationQuery, w, r)
+		rh.RevFedDBRequest(q, w)
 	default:
 		http.Error(w, ErrorResponseString("invalid_request", "Invalid request"), http.StatusBadRequest)
 	}
 }
 
-func (rh *RequestHandler) MakeDatabaseRequest(query string, w http.ResponseWriter, r *http.Request) {
-	record := Record{}
+func (rh *RequestHandler) RevFedDBRequest(accountID string, w http.ResponseWriter) {
+	record := FedRecord{}
 
-	q := r.URL.Query().Get("q")
+	record.AccountId = accountID
 
-	if r.URL.Query().Get("type") == "name" {
-		name := ""
-		domain := ""
+	revResult := RevFedRecord{}
 
-		if i := strings.Index(q, "*"); i >= 0 {
-			name = q[:i]
-			domain = q[i+1:]
-		}
+	err := rh.database.Get(&revResult, rh.config.ReverseFederationQuery, accountID)
 
-		if name == "" || domain != rh.config.Domain {
-			http.Error(w, ErrorResponseString("not_found", "Incorrect domain"), http.StatusNotFound)
-			return
-		}
+	if checkDBErr(err, w) {
+		record.StellarAddress = revResult.Name + "*" + rh.config.Domain
+		rh.WriteResponse(record, w)
+	}
+}
 
-		q = name
+func (rh *RequestHandler) FedDBRequest(stellarAddress string, w http.ResponseWriter) {
+	record := FedRecord{}
+	var name string
+	domain := ""
+
+	if i := strings.Index(stellarAddress, "*"); i >= 0 {
+		name = stellarAddress[:i]
+		domain = stellarAddress[i+1:]
 	}
 
-	err := rh.database.Get(&record, query, q)
+	if name == "" || domain != rh.config.Domain {
+		http.Error(w, ErrorResponseString("not_found", "Incorrect Domain"), http.StatusNotFound)
+		return
+	}
 
+	err := rh.database.Get(&record, rh.config.FederationQuery, name)
+	record.StellarAddress = stellarAddress
+
+	if checkDBErr(err, w) {
+		rh.WriteResponse(record, w)
+	}
+}
+
+// returns false if there was an error
+func checkDBErr(err error, w http.ResponseWriter) bool {
 	if err != nil {
 		if err.Error() == "sql: no rows in result set" {
+
 			log.Print("Federation record NOT found")
 			http.Error(w, ErrorResponseString("not_found", "Account not found"), http.StatusNotFound)
 		} else {
 			log.Print("Server error: ", err)
 			http.Error(w, ErrorResponseString("server_error", "Server error"), http.StatusInternalServerError)
 		}
-		return
+		return false
 	}
+	return true
+}
 
+func (rh *RequestHandler) WriteResponse(record FedRecord, w http.ResponseWriter) {
 	log.Print("Federation record found")
-
-	var usernameBuffer bytes.Buffer
-	usernameBuffer.WriteString(record.Username)
-	usernameBuffer.WriteString("*")
-	usernameBuffer.WriteString(rh.config.Domain)
-
-	record.Username = usernameBuffer.String()
-
-	if record.MemoType == "id" {
-		// TODO convert record.Memo to integer
-		// memoId, err := strconv.Atoi(record.Memo)
-		// if err != nil {
-		//   log.Print("Cannot convert Memo=", record.Memo, " to integer")
-		//   http.Error(w, ErrorResponseString("server_error", "Server error"), http.StatusInternalServerError)
-		//   return
-		// }
-	}
 
 	json, err := json.Marshal(record)
 
