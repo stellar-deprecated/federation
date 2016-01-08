@@ -69,7 +69,7 @@ type = "mysql"
 url = "root:@/dbname"
 
 [queries]
-federation = "SELECT username as memo,"text" as memo_type, 'GD6WU64OEP5C4LRBH6NK3MHYIA2ADN6K6II6EXPNVUR3ERBXT4AN4ACD' as id FROM Users WHERE username = ?"
+federation = "SELECT username as memo, 'text' as memo_type, 'GD6WU64OEP5C4LRBH6NK3MHYIA2ADN6K6II6EXPNVUR3ERBXT4AN4ACD' as id FROM Users WHERE username = ?"
 reverse-federation = "SELECT username as name FROM Users WHERE account_id = ?"
 ```
 
