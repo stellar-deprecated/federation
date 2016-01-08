@@ -49,8 +49,8 @@ type = "mysql"
 url = "root:@/dbname"
 
 [queries]
-federation = "SELECT account_id as id FROM Users WHERE username = ?"
-reverse-federation = "SELECT username as name FROM Users WHERE account_id = ?"
+federation = "SELECT account_id as id FROM Users WHERE username = $1"
+reverse-federation = "SELECT username as name FROM Users WHERE account_id = $1"
 ```
 
 
@@ -69,8 +69,8 @@ type = "mysql"
 url = "root:@/dbname"
 
 [queries]
-federation = "SELECT username as memo, 'text' as memo_type, 'GD6WU64OEP5C4LRBH6NK3MHYIA2ADN6K6II6EXPNVUR3ERBXT4AN4ACD' as id FROM Users WHERE username = ?"
-reverse-federation = "SELECT username as name FROM Users WHERE account_id = ?"
+federation = "SELECT username as memo, 'text' as memo_type, 'GD6WU64OEP5C4LRBH6NK3MHYIA2ADN6K6II6EXPNVUR3ERBXT4AN4ACD' as id FROM Users WHERE username = $1"
+reverse-federation = "SELECT username as name FROM Users WHERE account_id = $1"
 ```
 
 ## Usage
