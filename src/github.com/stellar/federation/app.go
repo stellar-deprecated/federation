@@ -9,6 +9,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/rs/cors"
 	"github.com/zenazn/goji"
 )
 
@@ -42,7 +43,15 @@ func (a *App) Serve() {
 	portString := fmt.Sprintf(":%d", a.config.Port)
 	flag.Set("bind", portString)
 
+	c := cors.New(cors.Options{
+		AllowedOrigins: []string{"*"},
+		AllowedHeaders: []string{"*"},
+		AllowedMethods: []string{"GET"},
+	})
+	goji.Use(c.Handler)
+	goji.Use(headersMiddleware())
 	goji.Use(stripTrailingSlashMiddleware())
+
 	goji.Get("/federation", requestHandler.Main)
 	goji.Serve()
 }

@@ -8,6 +8,18 @@
 			"branch": "master"
 		},
 		{
+			"importpath": "github.com/codegangsta/inject",
+			"repository": "https://github.com/codegangsta/inject",
+			"revision": "33e0aa1cb7c019ccc3fbe049a8262a6403d30504",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/codegangsta/negroni",
+			"repository": "https://github.com/codegangsta/negroni",
+			"revision": "c7477ad8e330bef55bf1ebe300cf8aa67c492d1b",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/cpuguy83/go-md2man/md2man",
 			"repository": "https://github.com/cpuguy83/go-md2man",
 			"revision": "71acacd42f85e5e82f70a55327789582a5200a90",
@@ -20,6 +32,12 @@
 			"revision": "5215b55f46b2b919f50a1df0eaa5886afe4e3b3d",
 			"branch": "master",
 			"path": "/spew"
+		},
+		{
+			"importpath": "github.com/go-martini/martini",
+			"repository": "https://github.com/go-martini/martini",
+			"revision": "15a47622d6a9b3e6a1eaca2681e4850f612471ea",
+			"branch": "master"
 		},
 		{
 			"importpath": "github.com/go-sql-driver/mysql",
@@ -58,6 +76,12 @@
 			"branch": "master"
 		},
 		{
+			"importpath": "github.com/justinas/alice",
+			"repository": "https://github.com/justinas/alice",
+			"revision": "82db91fe6d1db4c070fed544cb5d0b5cc08fe276",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/kr/pretty",
 			"repository": "https://github.com/kr/pretty",
 			"revision": "e6ac2fc51e89a3249e82157fa0bb7a18ef9dd5bb",
@@ -82,6 +106,12 @@
 			"branch": "master"
 		},
 		{
+			"importpath": "github.com/martini-contrib/render",
+			"repository": "https://github.com/martini-contrib/render",
+			"revision": "ec18f8345a1181146728238980606fb1d6f40e8c",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/mattn/go-sqlite3",
 			"repository": "https://github.com/mattn/go-sqlite3",
 			"revision": "5651a9d9d49ec25811d08220ee972080378d52ea",
@@ -94,11 +124,29 @@
 			"branch": "master"
 		},
 		{
+			"importpath": "github.com/oxtoacart/bpool",
+			"repository": "https://github.com/oxtoacart/bpool",
+			"revision": "4e1c5567d7c2dd59fa4c7c83d34c2f3528b025d6",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/pmezard/go-difflib/difflib",
 			"repository": "https://github.com/pmezard/go-difflib",
 			"revision": "e8554b8641db39598be7f6342874b958f12ae1d4",
 			"branch": "master",
 			"path": "/difflib"
+		},
+		{
+			"importpath": "github.com/rs/cors",
+			"repository": "https://github.com/rs/cors",
+			"revision": "ceb1fbf238d7711a11a86a2622d0b85305348aeb",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/rs/xhandler",
+			"repository": "https://github.com/rs/xhandler",
+			"revision": "d9d9599b6aaf6a058cb7b1f48291ded2cbd13390",
+			"branch": "master"
 		},
 		{
 			"importpath": "github.com/russross/blackfriday",
@@ -179,6 +227,13 @@
 			"repository": "https://github.com/zenazn/goji",
 			"revision": "bf843a174a08e846246b8945f8a9a853d84a256a",
 			"branch": "master"
+		},
+		{
+			"importpath": "golang.org/x/net/context",
+			"repository": "https://go.googlesource.com/net",
+			"revision": "5df5483e0518a11a6ef1e894c70236eb3f639557",
+			"branch": "master",
+			"path": "/context"
 		},
 		{
 			"importpath": "gopkg.in/fsnotify.v1",
