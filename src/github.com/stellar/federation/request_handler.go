@@ -20,6 +20,8 @@ func (rh *RequestHandler) Main(w http.ResponseWriter, r *http.Request) {
 		rh.FedDBRequest(q, w)
 	case requestType == "id" && q != "":
 		rh.RevFedDBRequest(q, w)
+	case requestType == "txid" && q != "":
+		rh.writeErrorResponse(w, ErrorResponseString("not_implemented", "txid requests are not supported"), http.StatusNotImplemented)
 	default:
 		rh.writeErrorResponse(w, ErrorResponseString("invalid_request", "Invalid request"), http.StatusBadRequest)
 	}
