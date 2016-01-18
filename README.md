@@ -22,7 +22,7 @@ The `config.toml` file must be present in a working directory. Config file shoul
 * `domain` - domain this federation server represent
 * `port` - server listening port
 * `database`
-  * `type` - database type (sqlite, mysql, postgres)
+  * `type` - database type (sqlite3, mysql, postgres)
   * `url` - url to database connection
 * `queries`
   * `federation` - Implementation dependent query to fetch federation results, should return either 1 or 3 columns. These columns should be labeled `id`,`memo`,`memo_type`. Memo and memo_type are optional - check [Federation](https://www.stellar.org/developers/learn/concepts/federation.html) docs)
@@ -71,6 +71,34 @@ url = "root:@/dbname"
 [queries]
 federation = "SELECT username as memo, 'text' as memo_type, 'GD6WU64OEP5C4LRBH6NK3MHYIA2ADN6K6II6EXPNVUR3ERBXT4AN4ACD' as id FROM Users WHERE username = $1"
 reverse-federation = "SELECT username as name FROM Users WHERE account_id = $1"
+```
+
+## SQLite sample
+
+`federation-sqlite-sample` is a simple SQLite DB file you can use to test federation server quickly. It contains a single `Users` table with following schema and data:
+
+id | name | accountId
+--- | --- | ---
+1 | bob | GCW667JUHCOP5Y7KY6KGDHNPHFM4CS3FCBQ7QWDUALXTX3PGXLSOEALY
+2 | alice | GCVYGVXNRUUOFYB5OKA37UYBF3W7RK7D6JPNV57FZFYAUU5NKJYZMTK2
+
+It should work out of box with following `config.toml` file:
+```toml
+domain = "stellar.org"
+port = 8000
+
+[database]
+type = "sqlite3"
+url = "./federation-sqlite-sample"
+
+[queries]
+federation = "SELECT accountId as id FROM Users WHERE name = ?"
+reverse-federation = "SELECT name FROM Users WHERE accountId = ?"
+```
+
+Start the server and then request it:
+```
+curl "http://localhost:8000/federation?type=name&q=alice*stellar.org"
 ```
 
 ## Usage
