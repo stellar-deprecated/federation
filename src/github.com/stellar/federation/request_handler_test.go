@@ -26,9 +26,11 @@ func TestRequestHandler(t *testing.T) {
 
 	app := App{
 		config: Config{
-			Domain:                 "acme.com",
-			FederationQuery:        "FederationQuery",
-			ReverseFederationQuery: "ReverseFederationQuery",
+			Domain: "acme.com",
+			Queries: ConfigQueries{
+				Federation:        "FederationQuery",
+				ReverseFederation: "ReverseFederationQuery",
+			},
 		},
 		database: mockDatabase,
 	}
@@ -44,7 +46,7 @@ func TestRequestHandler(t *testing.T) {
 
 			responseRecord := FedRecord{}
 
-			mockDatabase.On("Get", &responseRecord, app.config.FederationQuery, username).Return(nil).Run(func(args mock.Arguments) {
+			mockDatabase.On("Get", &responseRecord, app.config.Queries.Federation, username).Return(nil).Run(func(args mock.Arguments) {
 				record := args.Get(0).(*FedRecord)
 				record.AccountId = accountId
 				record.StellarAddress = username + "*" + app.config.Domain
@@ -67,7 +69,7 @@ func TestRequestHandler(t *testing.T) {
 			username := "not-exist"
 			responseRecord := FedRecord{}
 
-			mockDatabase.On("Get", &responseRecord, app.config.FederationQuery, username).Return(errors.New("sql: no rows in result set"))
+			mockDatabase.On("Get", &responseRecord, app.config.Queries.Federation, username).Return(errors.New("sql: no rows in result set"))
 
 			Convey("it should return error response", func() {
 				response := GetResponse(testServer, "?type=name&q="+username+"*"+app.config.Domain)
@@ -111,7 +113,7 @@ func TestRequestHandler(t *testing.T) {
 
 			revRecord := RevFedRecord{}
 
-			mockDatabase.On("Get", &revRecord, app.config.ReverseFederationQuery, accountId).Return(nil).Run(func(args mock.Arguments) {
+			mockDatabase.On("Get", &revRecord, app.config.Queries.ReverseFederation, accountId).Return(nil).Run(func(args mock.Arguments) {
 				record := args.Get(0).(*RevFedRecord)
 				record.Name = "test"
 			})
@@ -132,7 +134,7 @@ func TestRequestHandler(t *testing.T) {
 			accountId := "GCKWDG2RWKPJNLLPLNU5PYCYN3TLKWI2SWAMSGFGSTVHCJX5P2EVMFGS"
 			revRecord := RevFedRecord{}
 
-			mockDatabase.On("Get", &revRecord, app.config.ReverseFederationQuery, accountId).Return(errors.New("sql: no rows in result set"))
+			mockDatabase.On("Get", &revRecord, app.config.Queries.ReverseFederation, accountId).Return(errors.New("sql: no rows in result set"))
 
 			Convey("it should return error response", func() {
 				response := GetResponse(testServer, "?type=id&q="+accountId)

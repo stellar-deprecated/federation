@@ -34,7 +34,7 @@ func (rh *RequestHandler) RevFedDBRequest(accountID string, w http.ResponseWrite
 
 	revResult := RevFedRecord{}
 
-	err := rh.database.Get(&revResult, rh.config.ReverseFederationQuery, accountID)
+	err := rh.database.Get(&revResult, rh.config.Queries.ReverseFederation, accountID)
 
 	if rh.checkDBErr(err, w) {
 		record.StellarAddress = revResult.Name + "*" + rh.config.Domain
@@ -57,7 +57,7 @@ func (rh *RequestHandler) FedDBRequest(stellarAddress string, w http.ResponseWri
 		return
 	}
 
-	err := rh.database.Get(&record, rh.config.FederationQuery, name)
+	err := rh.database.Get(&record, rh.config.Queries.Federation, name)
 	record.StellarAddress = stellarAddress
 
 	if rh.checkDBErr(err, w) {

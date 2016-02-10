@@ -7,8 +7,8 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
-	_ "github.com/lib/pq"
 	"github.com/justinas/alice"
+	_ "github.com/lib/pq"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/rs/cors"
 )
@@ -25,8 +25,8 @@ type App struct {
 // NewApp constructs an new App instance from the provided config.
 func NewApp(config Config) (*App, error) {
 	database, err := sqlx.Connect(
-		config.DatabaseType,
-		config.DatabaseUrl,
+		config.Database.Type,
+		config.Database.Url,
 	)
 
 	if err != nil {
@@ -49,14 +49,27 @@ func (a *App) Serve() {
 	handler := alice.New(
 		c.Handler,
 		headersMiddleware(),
-		stripTrailingSlashMiddleware(),
 	).Then(http.HandlerFunc(requestHandler.Main))
 
 	http.Handle("/federation", handler)
 	http.Handle("/federation/", handler)
 
 	portString := fmt.Sprintf(":%d", a.config.Port)
-	err := http.ListenAndServe(portString, nil)
+
+	log.Println("Starting server on port: ", a.config.Port)
+
+	var err error
+	if a.config.Tls.CertificateFile != "" && a.config.Tls.PrivateKeyFile != "" {
+		err = http.ListenAndServeTLS(
+			portString,
+			a.config.Tls.CertificateFile,
+			a.config.Tls.PrivateKeyFile,
+			nil,
+		)
+	} else {
+		err = http.ListenAndServe(portString, nil)
+	}
+
 	if err != nil {
 		log.Fatal(err)
 	}

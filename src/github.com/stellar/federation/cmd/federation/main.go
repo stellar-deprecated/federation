@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"runtime"
@@ -45,7 +44,7 @@ func run(cmd *cobra.Command, args []string) {
 	log.Print("Reading config.toml file")
 	err := viper.ReadInConfig()
 	if err != nil {
-		panic(fmt.Errorf("Fatal error config file: %s \n", err))
+		log.Fatal("Error reading config file: ", err)
 	}
 
 	if viper.GetString("database.type") == "" ||
@@ -57,14 +56,8 @@ func run(cmd *cobra.Command, args []string) {
 		os.Exit(1)
 	}
 
-	config := federation.Config{
-		Port:                   viper.GetInt("port"),
-		Domain:                 viper.GetString("domain"),
-		DatabaseType:           viper.GetString("database.type"),
-		DatabaseUrl:            viper.GetString("database.url"),
-		FederationQuery:        viper.GetString("queries.federation"),
-		ReverseFederationQuery: viper.GetString("queries.reverse-federation"),
-	}
+	var config federation.Config
+	err = viper.Unmarshal(&config)
 
 	app, err = federation.NewApp(config)
 

@@ -27,6 +27,9 @@ The `config.toml` file must be present in a working directory. Config file shoul
 * `queries`
   * `federation` - Implementation dependent query to fetch federation results, should return either 1 or 3 columns. These columns should be labeled `id`,`memo`,`memo_type`. Memo and memo_type are optional - check [Federation](https://www.stellar.org/developers/learn/concepts/federation.html) docs)
   * `reverse-federation` - Implementation dependent query to fetch reverse federation results, should return one column. This column should be labeled `name`.
+* `tls` (only when running HTTPS server)
+  * `certificate-file` - a file containing a certificate
+  * `private-key-file` - a file containing a matching private key
 
 `memo_type` should be one of the following:
 * `id` - then `memo` field should contain unsigned 64-bit integer, please note that this value will be converted to integer so the field should be an integer or a string representing an integer,
