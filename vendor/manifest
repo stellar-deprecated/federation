@@ -46,12 +46,6 @@
 			"branch": "master"
 		},
 		{
-			"importpath": "github.com/goji/param",
-			"repository": "https://github.com/goji/param",
-			"revision": "da86c81e3e3c23b1948bc7a003d381250a032aa7",
-			"branch": "master"
-		},
-		{
 			"importpath": "github.com/hashicorp/hcl",
 			"repository": "https://github.com/hashicorp/hcl",
 			"revision": "17c5c97b5a51e82c238678127e413b7635c6d5f6",
@@ -221,12 +215,6 @@
 			"revision": "e3a8ff8ce36581f87a15341206f205b1da467059",
 			"branch": "master",
 			"path": "/mock"
-		},
-		{
-			"importpath": "github.com/zenazn/goji",
-			"repository": "https://github.com/zenazn/goji",
-			"revision": "bf843a174a08e846246b8945f8a9a853d84a256a",
-			"branch": "master"
 		},
 		{
 			"importpath": "golang.org/x/net/context",

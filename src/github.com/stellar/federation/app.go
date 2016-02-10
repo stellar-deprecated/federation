@@ -1,16 +1,16 @@
 package federation
 
 import (
-	"flag"
 	"fmt"
 	"log"
+	"net/http"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
+	"github.com/justinas/alice"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/rs/cors"
-	"github.com/zenazn/goji"
 )
 
 type Database interface {
@@ -40,18 +40,24 @@ func NewApp(config Config) (*App, error) {
 func (a *App) Serve() {
 	requestHandler := &RequestHandler{config: &a.config, database: a.database}
 
-	portString := fmt.Sprintf(":%d", a.config.Port)
-	flag.Set("bind", portString)
-
 	c := cors.New(cors.Options{
 		AllowedOrigins: []string{"*"},
 		AllowedHeaders: []string{"*"},
 		AllowedMethods: []string{"GET"},
 	})
-	goji.Use(c.Handler)
-	goji.Use(headersMiddleware())
-	goji.Use(stripTrailingSlashMiddleware())
 
-	goji.Get("/federation", requestHandler.Main)
-	goji.Serve()
+	handler := alice.New(
+		c.Handler,
+		headersMiddleware(),
+		stripTrailingSlashMiddleware(),
+	).Then(http.HandlerFunc(requestHandler.Main))
+
+	http.Handle("/federation", handler)
+	http.Handle("/federation/", handler)
+
+	portString := fmt.Sprintf(":%d", a.config.Port)
+	err := http.ListenAndServe(portString, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
