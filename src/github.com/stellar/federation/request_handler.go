@@ -5,21 +5,24 @@ import (
 	"log"
 	"net/http"
 	"strings"
+
+	"github.com/stellar/federation/db"
 )
 
 type RequestHandler struct {
-	config   *Config
-	database Database
+	config *Config
+	driver db.Driver
 }
 
 func (rh *RequestHandler) Main(w http.ResponseWriter, r *http.Request) {
 	requestType := r.URL.Query().Get("type")
 	q := r.URL.Query().Get("q")
+
 	switch {
 	case requestType == "name" && q != "":
-		rh.FedDBRequest(q, w)
+		rh.FederationRequest(q, w)
 	case requestType == "id" && q != "":
-		rh.RevFedDBRequest(q, w)
+		rh.ReverseFederationRequest(q, w)
 	case requestType == "txid" && q != "":
 		rh.writeErrorResponse(w, ErrorResponseString("not_implemented", "txid requests are not supported"), http.StatusNotImplemented)
 	default:
@@ -27,25 +30,27 @@ func (rh *RequestHandler) Main(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (rh *RequestHandler) RevFedDBRequest(accountID string, w http.ResponseWriter) {
-	record := FedRecord{}
+func (rh *RequestHandler) ReverseFederationRequest(accountID string, w http.ResponseWriter) {
+	response := Response{
+		AccountId: accountID,
+	}
 
-	record.AccountId = accountID
+	record, err := rh.driver.GetByAccountId(accountID, rh.config.Queries.ReverseFederation)
 
-	revResult := RevFedRecord{}
-
-	err := rh.database.Get(&revResult, rh.config.Queries.ReverseFederation, accountID)
-
-	if rh.checkDBErr(err, w) {
-		record.StellarAddress = revResult.Name + "*" + rh.config.Domain
-		rh.writeResponse(w, record)
+	if err != nil {
+		log.Print("Server error: ", err)
+		rh.writeErrorResponse(w, ErrorResponseString("server_error", "Server error"), http.StatusInternalServerError)
+	} else if record == nil {
+		log.Print("Federation record NOT found")
+		rh.writeErrorResponse(w, ErrorResponseString("not_found", "Account not found"), http.StatusNotFound)
+	} else {
+		response.StellarAddress = record.Name + "*" + rh.config.Domain
+		rh.writeResponse(w, response)
 	}
 }
 
-func (rh *RequestHandler) FedDBRequest(stellarAddress string, w http.ResponseWriter) {
-	record := FedRecord{}
-	var name string
-	domain := ""
+func (rh *RequestHandler) FederationRequest(stellarAddress string, w http.ResponseWriter) {
+	var name, domain string
 
 	if i := strings.Index(stellarAddress, "*"); i >= 0 {
 		name = stellarAddress[:i]
@@ -57,33 +62,30 @@ func (rh *RequestHandler) FedDBRequest(stellarAddress string, w http.ResponseWri
 		return
 	}
 
-	err := rh.database.Get(&record, rh.config.Queries.Federation, name)
-	record.StellarAddress = stellarAddress
-
-	if rh.checkDBErr(err, w) {
-		rh.writeResponse(w, record)
+	response := Response{
+		StellarAddress: stellarAddress,
 	}
-}
 
-// returns false if there was an error
-func (rh *RequestHandler) checkDBErr(err error, w http.ResponseWriter) bool {
+	record, err := rh.driver.GetByStellarAddress(name, rh.config.Queries.Federation)
+
 	if err != nil {
-		if err.Error() == "sql: no rows in result set" {
-			log.Print("Federation record NOT found")
-			rh.writeErrorResponse(w, ErrorResponseString("not_found", "Account not found"), http.StatusNotFound)
-		} else {
-			log.Print("Server error: ", err)
-			rh.writeErrorResponse(w, ErrorResponseString("server_error", "Server error"), http.StatusInternalServerError)
-		}
-		return false
+		log.Print("Server error: ", err)
+		rh.writeErrorResponse(w, ErrorResponseString("server_error", "Server error"), http.StatusInternalServerError)
+	} else if record == nil {
+		log.Print("Federation record NOT found")
+		rh.writeErrorResponse(w, ErrorResponseString("not_found", "Account not found"), http.StatusNotFound)
+	} else {
+		response.AccountId = record.AccountId
+		response.MemoType = record.MemoType
+		response.Memo = record.Memo
+		rh.writeResponse(w, response)
 	}
-	return true
 }
 
-func (rh *RequestHandler) writeResponse(w http.ResponseWriter, record FedRecord) {
+func (rh *RequestHandler) writeResponse(w http.ResponseWriter, response Response) {
 	log.Print("Federation record found")
 
-	json, err := json.Marshal(record)
+	json, err := json.Marshal(response)
 
 	if err != nil {
 		rh.writeErrorResponse(w, ErrorResponseString("server_error", "Server error"), http.StatusInternalServerError)

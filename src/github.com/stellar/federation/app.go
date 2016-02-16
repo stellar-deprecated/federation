@@ -5,12 +5,12 @@ import (
 	"log"
 	"net/http"
 
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/jmoiron/sqlx"
 	"github.com/justinas/alice"
-	_ "github.com/lib/pq"
-	_ "github.com/mattn/go-sqlite3"
 	"github.com/rs/cors"
+	"github.com/stellar/federation/db"
+	"github.com/stellar/federation/db/drivers/mysql"
+	"github.com/stellar/federation/db/drivers/postgres"
+	"github.com/stellar/federation/db/drivers/sqlite3"
 )
 
 type Database interface {
@@ -18,27 +18,35 @@ type Database interface {
 }
 
 type App struct {
-	config   Config
-	database Database
+	config Config
+	driver db.Driver
 }
 
 // NewApp constructs an new App instance from the provided config.
 func NewApp(config Config) (*App, error) {
-	database, err := sqlx.Connect(
-		config.Database.Type,
-		config.Database.Url,
-	)
-
-	if err != nil {
-		log.Panic(err)
+	var driver db.Driver
+	switch config.Database.Type {
+	case "mysql":
+		driver = &mysql.MysqlDriver{}
+	case "postgres":
+		driver = &postgres.PostgresDriver{}
+	case "sqlite3":
+		driver = &sqlite3.Sqlite3Driver{}
+	default:
+		return nil, fmt.Errorf("%s database has no driver.", config.Database.Type)
 	}
 
-	result := &App{config: config, database: database}
+	err := driver.Init(config.Database.Url)
+	if err != nil {
+		return nil, err
+	}
+
+	result := &App{config: config, driver: driver}
 	return result, nil
 }
 
 func (a *App) Serve() {
-	requestHandler := &RequestHandler{config: &a.config, database: a.database}
+	requestHandler := &RequestHandler{config: &a.config, driver: a.driver}
 
 	c := cors.New(cors.Options{
 		AllowedOrigins: []string{"*"},

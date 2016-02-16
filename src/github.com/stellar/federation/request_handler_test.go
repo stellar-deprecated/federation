@@ -2,27 +2,47 @@ package federation
 
 import (
 	"encoding/json"
-	"errors"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
+	"github.com/stellar/federation/db"
 	"github.com/stretchr/testify/mock"
 )
 
-type MockDatabase struct {
+type MockDriver struct {
 	mock.Mock
 }
 
-func (m *MockDatabase) Get(dest interface{}, query string, args ...interface{}) error {
-	a := m.Called(dest, query, args[0])
+func (m *MockDriver) Init(url string) error {
+	a := m.Called(url)
 	return a.Error(0)
 }
 
+func (m *MockDriver) GetByStellarAddress(name, query string) (*db.FederationRecord, error) {
+	a := m.Called(name, query)
+	record := a.Get(0)
+	if record == nil {
+		return nil, a.Error(1)
+	} else {
+		return a.Get(0).(*db.FederationRecord), a.Error(1)
+	}
+}
+
+func (m *MockDriver) GetByAccountId(accountId, query string) (*db.ReverseFederationRecord, error) {
+	a := m.Called(accountId, query)
+	record := a.Get(0)
+	if record == nil {
+		return nil, a.Error(1)
+	} else {
+		return a.Get(0).(*db.ReverseFederationRecord), a.Error(1)
+	}
+}
+
 func TestRequestHandler(t *testing.T) {
-	mockDatabase := new(MockDatabase)
+	mockDriver := new(MockDriver)
 
 	app := App{
 		config: Config{
@@ -32,10 +52,10 @@ func TestRequestHandler(t *testing.T) {
 				ReverseFederation: "ReverseFederationQuery",
 			},
 		},
-		database: mockDatabase,
+		driver: mockDriver,
 	}
 
-	requestHandler := RequestHandler{config: &app.config, database: app.database}
+	requestHandler := RequestHandler{config: &app.config, driver: app.driver}
 	testServer := httptest.NewServer(http.HandlerFunc(requestHandler.Main))
 	defer testServer.Close()
 
@@ -44,38 +64,32 @@ func TestRequestHandler(t *testing.T) {
 			username := "test"
 			accountId := "GD3YBOYIUVLU2VGK4GW5J3L4O5JCS626KG53OIFSXX7UOBS6NPCJIR2T"
 
-			responseRecord := FedRecord{}
-
-			mockDatabase.On("Get", &responseRecord, app.config.Queries.Federation, username).Return(nil).Run(func(args mock.Arguments) {
-				record := args.Get(0).(*FedRecord)
-				record.AccountId = accountId
-				record.StellarAddress = username + "*" + app.config.Domain
-			})
+			record := db.FederationRecord{AccountId: accountId}
+			mockDriver.On("GetByStellarAddress", username, app.config.Queries.Federation).Return(&record, nil)
 
 			Convey("it should return correct values", func() {
 				response := GetResponse(testServer, "?type=name&q="+username+"*"+app.config.Domain)
+				var responseObject Response
+				json.Unmarshal(response, &responseObject)
 
-				json.Unmarshal(response, &responseRecord)
+				So(responseObject.StellarAddress, ShouldEqual, username+"*"+app.config.Domain)
+				So(responseObject.AccountId, ShouldEqual, accountId)
 
-				So(responseRecord.StellarAddress, ShouldEqual, username+"*"+app.config.Domain)
-				So(responseRecord.AccountId, ShouldEqual, accountId)
-
-				mockDatabase.AssertExpectations(t)
+				mockDriver.AssertExpectations(t)
 			})
 
 		})
 
 		Convey("When record does not exist", func() {
 			username := "not-exist"
-			responseRecord := FedRecord{}
 
-			mockDatabase.On("Get", &responseRecord, app.config.Queries.Federation, username).Return(errors.New("sql: no rows in result set"))
+			mockDriver.On("GetByStellarAddress", username, app.config.Queries.Federation).Return(nil, nil)
 
 			Convey("it should return error response", func() {
 				response := GetResponse(testServer, "?type=name&q="+username+"*"+app.config.Domain)
 
 				CheckErrorResponse(response, "not_found", "Account not found")
-				//mockDatabase.AssertExpectations(t)
+				mockDriver.AssertExpectations(t)
 			})
 		})
 
@@ -83,7 +97,7 @@ func TestRequestHandler(t *testing.T) {
 			Convey("it should return error response", func() {
 				response := GetResponse(testServer, "?type=name&q=test*other.com")
 				CheckErrorResponse(response, "not_found", "Incorrect Domain")
-				mockDatabase.AssertNotCalled(t, "Get")
+				mockDriver.AssertNotCalled(t, "Get")
 			})
 		})
 
@@ -91,7 +105,7 @@ func TestRequestHandler(t *testing.T) {
 			Convey("it should return error response", func() {
 				response := GetResponse(testServer, "?type=name&q=test")
 				CheckErrorResponse(response, "not_found", "Incorrect Domain")
-				mockDatabase.AssertNotCalled(t, "Get")
+				mockDriver.AssertNotCalled(t, "Get")
 			})
 		})
 
@@ -99,7 +113,7 @@ func TestRequestHandler(t *testing.T) {
 			Convey("it should return error response", func() {
 				response := GetResponse(testServer, "?type=id")
 				CheckErrorResponse(response, "invalid_request", "Invalid request")
-				mockDatabase.AssertNotCalled(t, "Get")
+				mockDriver.AssertNotCalled(t, "Get")
 			})
 		})
 
@@ -111,35 +125,30 @@ func TestRequestHandler(t *testing.T) {
 			username := "test"
 			accountId := "GD3YBOYIUVLU2VGK4GW5J3L4O5JCS626KG53OIFSXX7UOBS6NPCJIR2T"
 
-			revRecord := RevFedRecord{}
-
-			mockDatabase.On("Get", &revRecord, app.config.Queries.ReverseFederation, accountId).Return(nil).Run(func(args mock.Arguments) {
-				record := args.Get(0).(*RevFedRecord)
-				record.Name = "test"
-			})
+			record := db.ReverseFederationRecord{Name: username}
+			mockDriver.On("GetByAccountId", accountId, app.config.Queries.ReverseFederation).Return(&record, nil)
 
 			Convey("it should return correct values", func() {
 				response := GetResponse(testServer, "?type=id&q="+accountId)
-				responseRecord := FedRecord{}
-				json.Unmarshal(response, &responseRecord)
+				var responseObject Response
+				json.Unmarshal(response, &responseObject)
 
-				So(responseRecord.StellarAddress, ShouldEqual, username+"*"+app.config.Domain)
-				So(responseRecord.AccountId, ShouldEqual, accountId)
+				So(responseObject.StellarAddress, ShouldEqual, username+"*"+app.config.Domain)
+				So(responseObject.AccountId, ShouldEqual, accountId)
 
-				//mockDatabase.AssertExpectations(t)
+				mockDriver.AssertExpectations(t)
 			})
 		})
 
 		Convey("When record does not exist", func() {
 			accountId := "GCKWDG2RWKPJNLLPLNU5PYCYN3TLKWI2SWAMSGFGSTVHCJX5P2EVMFGS"
-			revRecord := RevFedRecord{}
-
-			mockDatabase.On("Get", &revRecord, app.config.Queries.ReverseFederation, accountId).Return(errors.New("sql: no rows in result set"))
+			
+			mockDriver.On("GetByAccountId", accountId, app.config.Queries.ReverseFederation).Return(nil, nil)
 
 			Convey("it should return error response", func() {
 				response := GetResponse(testServer, "?type=id&q="+accountId)
 				CheckErrorResponse(response, "not_found", "Account not found")
-				//mockDatabase.AssertExpectations(t)
+				mockDriver.AssertExpectations(t)
 			})
 		})
 
@@ -147,7 +156,7 @@ func TestRequestHandler(t *testing.T) {
 			Convey("it should return error response", func() {
 				response := GetResponse(testServer, "?type=id")
 				CheckErrorResponse(response, "invalid_request", "Invalid request")
-				mockDatabase.AssertNotCalled(t, "Get")
+				mockDriver.AssertNotCalled(t, "Get")
 			})
 		})
 
@@ -157,7 +166,7 @@ func TestRequestHandler(t *testing.T) {
 		Convey("it should return error response", func() {
 			response := GetResponse(testServer, "?type=invalid")
 			CheckErrorResponse(response, "invalid_request", "Invalid request")
-			mockDatabase.AssertNotCalled(t, "Get")
+			mockDriver.AssertNotCalled(t, "Get")
 		})
 	})
 
