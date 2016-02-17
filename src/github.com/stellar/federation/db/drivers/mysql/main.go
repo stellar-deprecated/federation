@@ -3,6 +3,7 @@ package mysql
 import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
+	"github.com/stellar/federation/config"
 	"github.com/stellar/federation/db"
 )
 
@@ -10,8 +11,8 @@ type MysqlDriver struct {
 	database *sqlx.DB
 }
 
-func (d *MysqlDriver) Init(url string) (err error) {
-	d.database, err = sqlx.Connect("mysql", url)
+func (d *MysqlDriver) Init(config config.ConfigDatabase) (err error) {
+	d.database, err = sqlx.Connect("mysql", config.Url)
 	return
 }
 

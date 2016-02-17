@@ -46,6 +46,24 @@
 			"branch": "master"
 		},
 		{
+			"importpath": "github.com/gocql/gocql",
+			"repository": "https://github.com/gocql/gocql",
+			"revision": "2a72f6c4f3ee3dc5e84af75ebab84e3d0707e575",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/golang/snappy",
+			"repository": "https://github.com/golang/snappy",
+			"revision": "d1d908a252c22fd7afd36190d5cffb144aa8f777",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/hailocab/go-hostpool",
+			"repository": "https://github.com/hailocab/go-hostpool",
+			"revision": "e80d13ce29ede4452c43dea11e79b9bc8a15b478",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/hashicorp/hcl",
 			"repository": "https://github.com/hashicorp/hcl",
 			"revision": "17c5c97b5a51e82c238678127e413b7635c6d5f6",
@@ -227,6 +245,12 @@
 			"importpath": "gopkg.in/fsnotify.v1",
 			"repository": "https://gopkg.in/fsnotify.v1",
 			"revision": "2cdd39bd6129c6a49c74fb07fb9d77ba1271c572",
+			"branch": "master"
+		},
+		{
+			"importpath": "gopkg.in/inf.v0",
+			"repository": "https://gopkg.in/inf.v0",
+			"revision": "3887ee99ecf07df5b447e9b00d9c0b2adaa9f3e4",
 			"branch": "master"
 		},
 		{

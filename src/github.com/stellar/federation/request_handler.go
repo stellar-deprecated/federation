@@ -6,11 +6,12 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/stellar/federation/config"
 	"github.com/stellar/federation/db"
 )
 
 type RequestHandler struct {
-	config *Config
+	config *config.Config
 	driver db.Driver
 }
 

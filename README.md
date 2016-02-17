@@ -22,10 +22,13 @@ The `config.toml` file must be present in a working directory. Config file shoul
 * `domain` - domain this federation server represent
 * `port` - server listening port
 * `database`
-  * `type` - database type (sqlite3, mysql, postgres)
-  * `url` - url to database connection
+  * `type` - database type (sqlite3, mysql, postgres, cassandra)
+  * [sql, required] `url` - url to database connection
+  * [cassandra, required] `cluster` - array of cluster IPs (with ports if not listening on default)
+  * [cassandra, required] `keyspace` - keyspace to use
+  * [cassandra, optional] `proto-version` - version of the native protocol (default `2`)
 * `queries`
-  * `federation` - Implementation dependent query to fetch federation results, should return either 1 or 3 columns. These columns should be labeled `id`,`memo`,`memo_type`. Memo and memo_type are optional - check [Federation](https://www.stellar.org/developers/learn/concepts/federation.html) docs)
+  * `federation` - Implementation dependent query to fetch federation results, should return either 1 or 3 columns. These columns should be labeled `id`,`memo`,`memo_type` (`memo_type` not supported in Cassandra - it will always be `text`). Memo and memo_type are optional - check [Federation](https://www.stellar.org/developers/learn/concepts/federation.html) docs).
   * `reverse-federation` - Implementation dependent query to fetch reverse federation results, should return one column. This column should be labeled `name`.
 * `tls` (only when running HTTPS server)
   * `certificate-file` - a file containing a certificate

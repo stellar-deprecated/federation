@@ -7,7 +7,9 @@ import (
 
 	"github.com/justinas/alice"
 	"github.com/rs/cors"
+	c "github.com/stellar/federation/config"
 	"github.com/stellar/federation/db"
+	"github.com/stellar/federation/db/drivers/cassandra"
 	"github.com/stellar/federation/db/drivers/mysql"
 	"github.com/stellar/federation/db/drivers/postgres"
 	"github.com/stellar/federation/db/drivers/sqlite3"
@@ -18,14 +20,16 @@ type Database interface {
 }
 
 type App struct {
-	config Config
+	config c.Config
 	driver db.Driver
 }
 
 // NewApp constructs an new App instance from the provided config.
-func NewApp(config Config) (*App, error) {
+func NewApp(config c.Config) (*App, error) {
 	var driver db.Driver
 	switch config.Database.Type {
+	case "cassandra":
+		driver = &cassandra.CassandraDriver{}
 	case "mysql":
 		driver = &mysql.MysqlDriver{}
 	case "postgres":
@@ -36,7 +40,7 @@ func NewApp(config Config) (*App, error) {
 		return nil, fmt.Errorf("%s database has no driver.", config.Database.Type)
 	}
 
-	err := driver.Init(config.Database.Url)
+	err := driver.Init(config.Database)
 	if err != nil {
 		return nil, err
 	}
