@@ -1,6 +1,5 @@
 # federation server
 
-**Alpha version.**
 
 Go implementation of [Federation](https://www.stellar.org/developers/learn/concepts/federation.html) protocol server. This federation server is designed to be dropped in to your existing infrastructure. It can be configured to pull the data it needs out of your existing DB.
 
