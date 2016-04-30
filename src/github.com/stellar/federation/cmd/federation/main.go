@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/stellar/federation"
+	"github.com/stellar/federation/config"
 )
 
 var app *federation.App
@@ -33,7 +34,6 @@ Make sure config.toml file is in the working folder.
 Required config values:
   - domain
   - database.type
-  - database.url
   - queries.federation
   - queries.reverse-federation`,
 		Run: run,
@@ -48,7 +48,6 @@ func run(cmd *cobra.Command, args []string) {
 	}
 
 	if viper.GetString("database.type") == "" ||
-		viper.GetString("database.url") == "" ||
 		viper.GetString("domain") == "" ||
 		viper.GetString("queries.federation") == "" ||
 		viper.GetString("queries.reverse-federation") == "" {
@@ -56,7 +55,7 @@ func run(cmd *cobra.Command, args []string) {
 		os.Exit(1)
 	}
 
-	var config federation.Config
+	var config config.Config
 	err = viper.Unmarshal(&config)
 
 	app, err = federation.NewApp(config)

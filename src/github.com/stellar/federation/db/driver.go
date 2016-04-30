@@ -1,7 +1,11 @@
 package db
 
+import (
+	"github.com/stellar/federation/config"
+)
+
 type Driver interface {
-	Init(url string) (err error)
+	Init(config config.ConfigDatabase) (err error)
 	GetByStellarAddress(name, query string) (*FederationRecord, error)
 	GetByAccountId(accountId, query string) (*ReverseFederationRecord, error)
 }

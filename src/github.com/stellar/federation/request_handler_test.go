@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
+	"github.com/stellar/federation/config"
 	"github.com/stellar/federation/db"
 	"github.com/stretchr/testify/mock"
 )
@@ -16,7 +17,7 @@ type MockDriver struct {
 	mock.Mock
 }
 
-func (m *MockDriver) Init(url string) error {
+func (m *MockDriver) Init(url config.ConfigDatabase) error {
 	a := m.Called(url)
 	return a.Error(0)
 }
@@ -45,9 +46,9 @@ func TestRequestHandler(t *testing.T) {
 	mockDriver := new(MockDriver)
 
 	app := App{
-		config: Config{
+		config: config.Config{
 			Domain: "acme.com",
-			Queries: ConfigQueries{
+			Queries: config.ConfigQueries{
 				Federation:        "FederationQuery",
 				ReverseFederation: "ReverseFederationQuery",
 			},
@@ -142,7 +143,7 @@ func TestRequestHandler(t *testing.T) {
 
 		Convey("When record does not exist", func() {
 			accountId := "GCKWDG2RWKPJNLLPLNU5PYCYN3TLKWI2SWAMSGFGSTVHCJX5P2EVMFGS"
-			
+
 			mockDriver.On("GetByAccountId", accountId, app.config.Queries.ReverseFederation).Return(nil, nil)
 
 			Convey("it should return error response", func() {

@@ -3,6 +3,7 @@ package sqlite3
 import (
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/stellar/federation/config"
 	"github.com/stellar/federation/db"
 )
 
@@ -10,8 +11,8 @@ type Sqlite3Driver struct {
 	database *sqlx.DB
 }
 
-func (d *Sqlite3Driver) Init(url string) (err error) {
-	d.database, err = sqlx.Connect("sqlite3", url)
+func (d *Sqlite3Driver) Init(config config.ConfigDatabase) (err error) {
+	d.database, err = sqlx.Connect("sqlite3", config.Url)
 	return
 }
 
